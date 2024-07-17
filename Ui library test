@@ -1,0 +1,95 @@
+local UILibrary = {}
+
+function UILibrary:CreateTab(name)
+    local tab = {
+        Name = name,
+        Elements = {}
+    }
+
+    function tab:AddButton(params)
+        local button = Instance.new("TextButton")
+        button.Name = params.Name
+        button.Text = params.Name
+        button.Size = UDim2.new(0, 100, 0, 50)  -- Customize size as needed
+        button.Parent = tab.Frame
+        
+        button.MouseButton1Click:Connect(params.Callback)
+
+        table.insert(tab.Elements, button)
+        return button
+    end
+
+    function tab:AddToggle(params)
+        local toggle = Instance.new("Frame")
+        toggle.Name = params.Name
+        toggle.Size = UDim2.new(0, 100, 0, 50)  -- Customize size as needed
+
+        local toggleButton = Instance.new("TextButton")
+        toggleButton.Name = "ToggleButton"
+        toggleButton.Text = params.Name
+        toggleButton.Size = UDim2.new(1, 0, 1, 0)
+        toggleButton.Parent = toggle
+        
+        toggleButton.MouseButton1Click:Connect(function()
+            params.State = not params.State
+            params.Callback(params.State)
+        end)
+
+        toggle.Parent = tab.Frame
+        table.insert(tab.Elements, toggle)
+        return toggle
+    end
+
+    function tab:AddDropdown(params)
+        local dropdown = Instance.new("Frame")
+        dropdown.Name = params.Name
+        dropdown.Size = UDim2.new(0, 100, 0, 50)  -- Customize size as needed
+
+        local dropdownButton = Instance.new("TextButton")
+        dropdownButton.Name = "DropdownButton"
+        dropdownButton.Text = params.Name
+        dropdownButton.Size = UDim2.new(1, 0, 1, 0)
+        dropdownButton.Parent = dropdown
+        
+        local dropdownList = Instance.new("Frame")
+        dropdownList.Name = "DropdownList"
+        dropdownList.Size = UDim2.new(1, 0, 0, 100)  -- Customize size as needed
+        dropdownList.Position = UDim2.new(0, 0, 1, 0)
+        dropdownList.Visible = false
+        dropdownList.Parent = dropdown
+        
+        dropdownButton.MouseButton1Click:Connect(function()
+            dropdownList.Visible = not dropdownList.Visible
+        end)
+
+        for _, item in ipairs(params.Items) do
+            local listItem = Instance.new("TextButton")
+            listItem.Name = item
+            listItem.Text = item
+            listItem.Size = UDim2.new(1, 0, 0, 20)  -- Customize size as needed
+            listItem.Parent = dropdownList
+
+            listItem.MouseButton1Click:Connect(function()
+                params.Callback(item)
+                dropdownList.Visible = false
+            end)
+        end
+
+        dropdown.Parent = tab.Frame
+        table.insert(tab.Elements, dropdown)
+        return dropdown
+    end
+
+    function tab:Destroy()
+        tab.Frame:Destroy()
+    end
+
+    tab.Frame = Instance.new("Frame")
+    tab.Frame.Name = name
+    tab.Frame.Size = UDim2.new(1, 0, 1, 0)  -- Full-screen tab
+    tab.Frame.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    return tab
+end
+
+return UILibrary
